@@ -34,6 +34,5 @@ class CybereasonScraper:
         logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
 
 
-
 x = CybereasonScraper()
 x.find_new_blogs()
