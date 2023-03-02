@@ -1,6 +1,11 @@
 import requests
+import logging
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+
+from src.config import LOGGER_NAME
+
+logger = logging.getLogger(LOGGER_NAME)
 
 
 class FortinetScraper:
@@ -25,4 +30,4 @@ class FortinetScraper:
             if date_object > self.last_blog_date:
                 self.blogs.append(link)
 
-
+        logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
