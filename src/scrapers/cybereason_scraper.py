@@ -20,7 +20,7 @@ class CybereasonScraper:
     def find_new_blogs(self):
         page = requests.get(self.base_url.format(relative=self.start_url))
         soup = BeautifulSoup(page.content, "html.parser")
-        reports = soup.find_all("div", class_="container container-is-blog columns is-multiline page-center")
+        reports = soup.find_all("div", class_="column is-4-fullhd is-6-desktop is-half-tablet is-full-mobile blog-listing__single-post")
         for report in reports:
             a = report.find(class_='text-content-bundle').find('a')
             link = a.get("href")

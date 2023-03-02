@@ -14,9 +14,9 @@ if __name__ == '__main__':
     # logger.debug('debug')
     # scraper = FortinetScraper()
     # scraper.find_new_blogs()
-    # scraper = CybereasonScraper(last_blog_date=datetime.today() - timedelta(days=180))
-    # scraper.find_new_blogs()
-    scraper = SentineloneScraper(last_blog_date=datetime.today() - timedelta(days=360))
+    scraper = CybereasonScraper(last_blog_date=datetime.today() - timedelta(days=180))
     scraper.find_new_blogs()
+    # scraper = SentineloneScraper(last_blog_date=datetime.today() - timedelta(days=360))
+    # scraper.find_new_blogs()
     for article in scraper.blogs:
         print(', '.join(article))
