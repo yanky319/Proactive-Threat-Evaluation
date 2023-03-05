@@ -1,7 +1,7 @@
 import re
-
 import requests
 import logging
+
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
