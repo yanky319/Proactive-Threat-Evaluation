@@ -13,10 +13,11 @@ class FortinetScraper:
     def __init__(self, last_blog_date=(datetime.today() - timedelta(days=7))):
         self.base_url = 'https://www.fortinet.com{relative}'
         self.start_url = '/blog/threat-research'
-        self.blogs = []*3
+        self.blogs = []
         self.last_blog_date = last_blog_date
 
     def find_new_blogs(self):
+        dates = []
         page = requests.get(self.base_url.format(relative=self.start_url))
         soup = BeautifulSoup(page.content, "html.parser")
         reports = soup.find_all("div", class_="b3-blog-list__post text-container")
@@ -28,6 +29,19 @@ class FortinetScraper:
             date_object = datetime.strptime(date_string, '%B %d, %Y')
 
             if date_object > self.last_blog_date:
-                self.blogs.append([link, date_object.strftime("%d/%m/%Y")])
+                self.blogs.append(link)
+                dates.append(date_object)
 
         logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
+
+        if dates:
+            self.last_blog_date = max(dates)
+        else:
+            self.last_blog_date = datetime.today()
+
+
+if __name__ == '__main__':
+    scraper = FortinetScraper()
+    scraper.find_new_blogs()
+    print(len(scraper.blogs))
+    print(len(set(scraper.blogs)))

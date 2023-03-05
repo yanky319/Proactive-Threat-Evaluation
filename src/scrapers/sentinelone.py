@@ -16,16 +16,16 @@ class SentineloneScraper:
 
         self.base_url = 'https://www.sentinelone.com{relative}'
         self.start_url = '/blog/category/cyber-response/'
-        self.blogs = []*3
+        self.blogs = []
         self.last_blog_date = last_blog_date
 
     def find_new_blogs(self):
+        dates = []
         page = requests.get(self.base_url.format(relative=self.start_url))
         soup = BeautifulSoup(page.content, "html.parser")
         # reports = soup.find_all("div", class_="primary-inner")
         articles = soup.find_all("article")
         for article in articles:
-            articleID = article.get('id')
             a = article.find('a')
             link = a.get("href")
             date = a.find('div', class_='graphic').get('style')
@@ -37,7 +37,13 @@ class SentineloneScraper:
                 date_string = match.group()
                 date_object = datetime.strptime(date_string, '%Y/%m')
 
-            if date_object > self.last_blog_date:
-                self.blogs.append([link, date_object.strftime("%m/%Y"), 'articleID: {}'.format(articleID)])
+                if date_object > self.last_blog_date:
+                    self.blogs.append(link)
+                    dates.append(date_object)
 
-        logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
+            logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
+
+            if dates:
+                self.last_blog_date = max(dates)
+            else:
+                self.last_blog_date = datetime.today()

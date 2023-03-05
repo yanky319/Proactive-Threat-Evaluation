@@ -1,3 +1,4 @@
-from .fortinet_scraper import FortinetScraper
-from .cybereason_scraper import CybereasonScraper
-from .sentinelone_scraper import SentineloneScraper
+from .fortinet import FortinetScraper
+from .cybereason import CybereasonScraper
+from .cybereason import CybereasonScraper
+from .sentinelone import SentineloneScraper
