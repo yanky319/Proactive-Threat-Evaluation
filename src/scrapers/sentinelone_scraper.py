@@ -16,7 +16,7 @@ class SentineloneScraper:
 
         self.base_url = 'https://www.sentinelone.com{relative}'
         self.start_url = '/blog/category/cyber-response/'
-        self.blogs = []
+        self.blogs = []*3
         self.last_blog_date = last_blog_date
 
     def find_new_blogs(self):
@@ -38,10 +38,6 @@ class SentineloneScraper:
                 date_object = datetime.strptime(date_string, '%Y/%m')
 
             if date_object > self.last_blog_date:
-                self.blogs.append((link, date_object.strftime("%m/%Y"), 'articleID: {}'.format(articleID)))
+                self.blogs.append([link, date_object.strftime("%m/%Y"), 'articleID: {}'.format(articleID)])
 
         logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
-
-
-x = SentineloneScraper()
-x.find_new_blogs()

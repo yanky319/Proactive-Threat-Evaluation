@@ -13,7 +13,7 @@ class FortinetScraper:
     def __init__(self, last_blog_date=(datetime.today() - timedelta(days=7))):
         self.base_url = 'https://www.fortinet.com{relative}'
         self.start_url = '/blog/threat-research'
-        self.blogs = []
+        self.blogs = []*3
         self.last_blog_date = last_blog_date
 
     def find_new_blogs(self):
@@ -28,6 +28,6 @@ class FortinetScraper:
             date_object = datetime.strptime(date_string, '%B %d, %Y')
 
             if date_object > self.last_blog_date:
-                self.blogs.append((link, date_object.strftime("%d/%m/%Y")))
+                self.blogs.append([link, date_object.strftime("%d/%m/%Y")])
 
         logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
