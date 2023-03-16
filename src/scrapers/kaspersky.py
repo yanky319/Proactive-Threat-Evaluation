@@ -1,23 +1,26 @@
-import re
 import requests
 import logging
 
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-from src.config import LOGGER_NAME
+from src.config import LOGGER_NAME, TEMP_FOLDER
+from src.scrapers.scraper import Scraper
 
 logger = logging.getLogger(LOGGER_NAME)
 
 
-class KasperskyScraper:
+class KasperskyScraper(Scraper):
 
-    def __init__(self, last_blog_date=(datetime.today() - timedelta(days=7))):
-
-        self.base_url = 'https://www.kaspersky.com{relative}'
-        self.start_url = '/blog/category/threats/'
-        self.blogs = []
-        self.last_blog_date = last_blog_date
+    def __init__(self,  extractor, pdf_generator, last_blog_date=(datetime.today() - timedelta(days=7)),
+                 upload=True, folder=TEMP_FOLDER):
+        super().__init__(base='https://www.kaspersky.com{relative}',
+                         start='/blog/category/threats/',
+                         last_blog_date=last_blog_date,
+                         extractor=extractor,
+                         pdf_generator=pdf_generator,
+                         upload=upload,
+                         folder=folder)
 
     def find_new_blogs(self):
         dates = []

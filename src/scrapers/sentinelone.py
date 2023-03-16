@@ -5,19 +5,23 @@ import logging
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-from src.config import LOGGER_NAME
+from src.config import LOGGER_NAME, TEMP_FOLDER
+from src.scrapers.scraper import Scraper
 
 logger = logging.getLogger(LOGGER_NAME)
 
 
-class SentineloneScraper:
+class SentineloneScraper(Scraper):
 
-    def __init__(self, last_blog_date=(datetime.today() - timedelta(days=7))):
-
-        self.base_url = 'https://www.sentinelone.com{relative}'
-        self.start_url = '/blog/category/cyber-response/'
-        self.blogs = []
-        self.last_blog_date = last_blog_date
+    def __init__(self, extractor, pdf_generator, last_blog_date=(datetime.today() - timedelta(days=7)),
+                 upload=True, folder=TEMP_FOLDER):
+        super().__init__(base='https://www.sentinelone.com{relative}',
+                         start='/blog/category/cyber-response/',
+                         last_blog_date=last_blog_date,
+                         extractor=extractor,
+                         pdf_generator=pdf_generator,
+                         upload=upload,
+                         folder=folder)
 
     def find_new_blogs(self):
         dates = []
