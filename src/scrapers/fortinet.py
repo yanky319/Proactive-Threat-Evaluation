@@ -46,8 +46,8 @@ class FortinetScraper(Scraper):
             self.last_blog_date = datetime.today()
 
 
-if __name__ == '__main__':
-    scraper = FortinetScraper()
-    scraper.find_new_blogs()
-    print(len(scraper.blogs))
-    print(len(set(scraper.blogs)))
+# if __name__ == '__main__':
+#     scraper = FortinetScraper()
+#     scraper.find_new_blogs()
+#     print(len(scraper.blogs))
+#     print(len(set(scraper.blogs)))

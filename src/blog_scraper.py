@@ -33,7 +33,8 @@ class Post:
                                                                                                urls=len(self.URLs),
                                                                                                md5=len(self.MD5s),
                                                                                                sha1=len(self.SHA1s),
-                                                                                               sha256=len(self.SHA256s)))
+                                                                                               sha256=len(
+                                                                                                   self.SHA256s)))
         print("IPS: ")
         for i in self.IPv4s[:length]:
             print(i, sep="\t")

@@ -38,7 +38,11 @@ class PdfGenerator:
         self.driver.get(url)
 
         time.sleep(1)  # allow the page to load, increase if needed
-        WebDriverWait(self.driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//*[text()='Accept All']"))).click()
+        try:
+            WebDriverWait(self.driver, 10).until(ec.element_to_be_clickable((By.XPATH, "//*[text()='Accept All']"))).click()
+        except Exception as e:
+            # print(e)
+            print(f"Maybe cookies are accepted for {url}")
 
         # self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         height = self.driver.execute_script("return document.body.scrollHeight")

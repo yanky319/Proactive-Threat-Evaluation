@@ -1,6 +1,24 @@
 import os
 import json
+from collections import defaultdict
+
 import requests
+
+
+# Define a custom serializer function
+def set_default(obj):
+    if isinstance(obj, set):
+        return list(obj)
+    raise TypeError
+
+
+def refine_result(result):
+    for k, v in result.items():
+        if k == "ipv4":
+            for ip in v:
+                for i in ip.split('.'):
+                    if int(i) > 255:
+                        set(v).remove(ip)
 
 
 class Scraper:
@@ -22,19 +40,23 @@ class Scraper:
     def dump(self, name, content, pdf_bytes=None):
         ioc_file_path = os.path.join(self.folder, f'{name}.json')
         with open(ioc_file_path, "w") as json_outfile:
-            json.dump(content, json_outfile)
+            json.dump(content, json_outfile, default=set_default)
 
         if pdf_bytes:
-            pdf_file_path = os.path.join(self.folder, f'{name}.pdf')
-            with open(pdf_file_path, "wb") as pdf_outfile:
-                json.dump(content, pdf_outfile)
-
+            try:
+                pdf_file_path = os.path.join(self.folder, f'{name}.pdf')
+                with open(pdf_file_path, "wb") as pdf_outfile:
+                    json.dump(pdf_bytes, pdf_outfile)
+            except Exception as e:
+                # print(e)
+                print(f"Cannot create PDF file for {name}")
         if self.upload:
             pass
         # TODO upload json and PDF files
 
     def get_blog_name(self, url):
-        raise NotImplementedError
+        return url.split('/')[-1]
+        # raise NotImplementedError
 
     def scrape(self):
         self.find_new_blogs()
@@ -48,6 +70,8 @@ class Scraper:
                 page = requests.get(url)
                 data = page.content.decode('utf-8')
 
-            result = self.extractor.extract(src=data)
+            result = self.extractor.extract(src=data, defanged=False)
+
+            refine_result(result)
 
             self.dump(name=blog_name, content=result, pdf_bytes=pdf_bytes)

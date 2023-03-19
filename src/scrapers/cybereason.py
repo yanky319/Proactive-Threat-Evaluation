@@ -12,7 +12,7 @@ logger = logging.getLogger(LOGGER_NAME)
 
 class CybereasonScraper(Scraper):
 
-    def __init__(self,  extractor, pdf_generator, last_blog_date=(datetime.today() - timedelta(days=7)),
+    def __init__(self, extractor, pdf_generator, last_blog_date=(datetime.today() - timedelta(days=7)),
                  upload=True, folder=TEMP_FOLDER):
         super().__init__(base='https://www.cybereason.com{relative}',
                          start='/blog/category/research',
@@ -43,3 +43,6 @@ class CybereasonScraper(Scraper):
             self.last_blog_date = max(dates)
         else:
             self.last_blog_date = datetime.today()
+
+    def get_blog_name(self, url):
+        return url.split('/')[-1]
