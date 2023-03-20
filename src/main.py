@@ -1,8 +1,7 @@
 from msticpy.transform.iocextract import IoCExtract
-from src.utils.pdf_generator import PdfGenerator
 
 from src.scrapers import *
-from src.utils import set_logger, get_config, set_config
+from src.utils import set_logger, get_config, set_config, PdfGenerator
 from src.config import LOGGER_NAME
 
 logger = set_logger(LOGGER_NAME)
@@ -10,8 +9,8 @@ logger = set_logger(LOGGER_NAME)
 
 def main():
     config = get_config()
-    # scrapers = [FortinetScraper, SentineloneScraper, CybereasonScraper, KasperskyScraper, SecuritySoupScraper]
-    scrapers = [CybereasonScraper]
+    scrapers = [FortinetScraper, SentineloneScraper, CybereasonScraper, KasperskyScraper, SecuritySoupScraper]
+    # scrapers = [CybereasonScraper]
     extractor = IoCExtract()
     pdf_generator = PdfGenerator()
     for scraper in scrapers:

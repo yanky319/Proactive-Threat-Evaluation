@@ -2,7 +2,7 @@ import requests
 import logging
 
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from src.config import LOGGER_NAME, TEMP_FOLDER
 from src.scrapers.scraper import Scraper
@@ -12,8 +12,7 @@ logger = logging.getLogger(LOGGER_NAME)
 
 class FortinetScraper(Scraper):
 
-    def __init__(self, extractor, pdf_generator, last_blog_date=(datetime.today() - timedelta(days=7)),
-                 upload=True, folder=TEMP_FOLDER):
+    def __init__(self, extractor, pdf_generator, last_blog_date=None, upload=True, folder=TEMP_FOLDER):
         super().__init__(base='https://www.fortinet.com{relative}',
                          start='/blog/threat-research',
                          last_blog_date=last_blog_date,
@@ -21,6 +20,16 @@ class FortinetScraper(Scraper):
                          pdf_generator=pdf_generator,
                          upload=upload,
                          folder=folder)
+        self.accept_cookies_text = 'Accept All'
+
+    @staticmethod
+    def get_post_name(url):
+        """
+        get name of post
+        :param url: link to the post
+        :return: name of the post
+        """
+        return url.split('/')[-1]
 
     def find_new_blogs(self):
         dates = []
@@ -44,10 +53,3 @@ class FortinetScraper(Scraper):
             self.last_blog_date = max(dates)
         else:
             self.last_blog_date = datetime.today()
-
-
-# if __name__ == '__main__':
-#     scraper = FortinetScraper()
-#     scraper.find_new_blogs()
-#     print(len(scraper.blogs))
-#     print(len(set(scraper.blogs)))

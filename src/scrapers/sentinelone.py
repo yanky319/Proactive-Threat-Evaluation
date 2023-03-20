@@ -1,9 +1,8 @@
-import re
 import requests
 import logging
 
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from src.config import LOGGER_NAME, TEMP_FOLDER
 from src.scrapers.scraper import Scraper
@@ -13,8 +12,7 @@ logger = logging.getLogger(LOGGER_NAME)
 
 class SentineloneScraper(Scraper):
 
-    def __init__(self, extractor, pdf_generator, last_blog_date=(datetime.today() - timedelta(days=7)),
-                 upload=True, folder=TEMP_FOLDER):
+    def __init__(self, extractor, pdf_generator, last_blog_date=None, upload=True, folder=TEMP_FOLDER):
         super().__init__(base='https://www.sentinelone.com{relative}',
                          start='/blog/category/cyber-response/',
                          last_blog_date=last_blog_date,
@@ -22,6 +20,16 @@ class SentineloneScraper(Scraper):
                          pdf_generator=pdf_generator,
                          upload=upload,
                          folder=folder)
+        self.accept_cookies_text = 'Accept All Cookies'
+
+    @staticmethod
+    def get_post_name(url):
+        """
+        get name of post
+        :param url: link to the post
+        :return: name of the post
+        """
+        return url.split('/')[-2]
 
     def find_new_blogs(self):
         dates = []
@@ -33,21 +41,17 @@ class SentineloneScraper(Scraper):
             a = article.find('a')
             link = a.get("href")
             date = a.find('div', class_='graphic').get('style')
+            date_string = date[70:77:]
 
-            date_pattern = r'\d{4}/\d{2}'
+            date_object = datetime.strptime(date_string, '%Y/%m')
 
-            match = re.search(date_pattern, date)
-            if match:
-                date_string = match.group()
-                date_object = datetime.strptime(date_string, '%Y/%m')
+            if date_object > self.last_blog_date:
+                self.blogs.append(link)
+                dates.append(date_object)
 
-                if date_object > self.last_blog_date:
-                    self.blogs.append(link)
-                    dates.append(date_object)
+        logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
 
-            logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
-
-            if dates:
-                self.last_blog_date = max(dates)
-            else:
-                self.last_blog_date = datetime.today()
+        if dates:
+            self.last_blog_date = max(dates)
+        else:
+            self.last_blog_date = datetime.today()

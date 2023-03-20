@@ -2,7 +2,7 @@ import requests
 import logging
 
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from src.config import LOGGER_NAME, TEMP_FOLDER
 from src.scrapers.scraper import Scraper
@@ -12,8 +12,7 @@ logger = logging.getLogger(LOGGER_NAME)
 
 class CybereasonScraper(Scraper):
 
-    def __init__(self, extractor, pdf_generator, last_blog_date=(datetime.today() - timedelta(days=7)),
-                 upload=True, folder=TEMP_FOLDER):
+    def __init__(self, extractor, pdf_generator, last_blog_date=None, upload=True, folder=TEMP_FOLDER):
         super().__init__(base='https://www.cybereason.com{relative}',
                          start='/blog/category/research',
                          last_blog_date=last_blog_date,
@@ -21,6 +20,16 @@ class CybereasonScraper(Scraper):
                          pdf_generator=pdf_generator,
                          upload=upload,
                          folder=folder)
+        self.accept_cookies_text = 'Accept All Cookies'
+
+    @staticmethod
+    def get_post_name(url):
+        """
+        get name of post
+        :param url: link to the post
+        :return: name of the post
+        """
+        return url.split('/')[-1]
 
     def find_new_blogs(self):
         dates = []
@@ -43,6 +52,3 @@ class CybereasonScraper(Scraper):
             self.last_blog_date = max(dates)
         else:
             self.last_blog_date = datetime.today()
-
-    def get_blog_name(self, url):
-        return url.split('/')[-1]
