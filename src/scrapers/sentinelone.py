@@ -46,7 +46,7 @@ class SentineloneScraper(Scraper):
             date_object = datetime.strptime(date_string, '%Y/%m')
 
             if date_object > self.last_blog_date:
-                self.blogs.append(link)
+                self.blogs[link] = date_object
                 dates.append(date_object)
 
         logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')

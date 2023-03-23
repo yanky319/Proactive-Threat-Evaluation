@@ -43,7 +43,7 @@ class SecuritySoupScraper(Scraper):
             # articleID = article.get('id')
 
             if date_object > self.last_blog_date:
-                self.blogs.append(link)
+                self.blogs[link] = date_object
                 dates.append(date_object)
 
         logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')

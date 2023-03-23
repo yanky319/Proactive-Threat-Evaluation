@@ -9,8 +9,8 @@ logger = set_logger(LOGGER_NAME)
 
 def main():
     config = get_config()
-    scrapers = [FortinetScraper, SentineloneScraper, CybereasonScraper, KasperskyScraper, SecuritySoupScraper]
-    # scrapers = [CybereasonScraper]
+    # scrapers = [FortinetScraper, SentineloneScraper, CybereasonScraper, KasperskyScraper, SecuritySoupScraper]
+    scrapers = [FortinetScraper]
     extractor = IoCExtract()
     pdf_generator = PdfGenerator()
     for scraper in scrapers:
