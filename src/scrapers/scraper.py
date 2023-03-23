@@ -1,13 +1,44 @@
+import datetime
 import os
 import json
 import requests
 import logging
 import traceback
+import pickle
 
 from src.config import DEFAULT_LAST_DATE, LOGGER_NAME
 from src.utils import validate_ip_address
+import openpyxl as excelDB
 
 logger = logging.getLogger(LOGGER_NAME)
+
+
+def create_new_sheet(wb, blog_name):
+    if len(wb.sheetnames) == 1 and wb.sheetnames[0] == 'Sheet':
+        wb['Sheet'].title = blog_name
+    else:
+        wb.create_sheet(blog_name)
+    ws = wb[blog_name]
+    ws.cell(row=1, column=1).value = 'Scan date'
+    ws.cell(row=1, column=2).value = 'Blog upload date'
+    ws.cell(row=1, column=3).value = 'URL'
+    ws.cell(row=1, column=4).value = 'SHA256'
+    ws.cell(row=1, column=5).value = 'MD5'
+    ws.cell(row=1, column=6).value = 'Existence_in_VT'
+    ws.cell(row=1, column=7).value = 'Date_uploaded_to_vt'
+    ws.cell(row=1, column=8).value = 'file_type'
+    ws.cell(row=1, column=9).value = 'malware_bazaar'
+    return ws
+
+
+# def save_result_object_to_file(result):
+#     with open('result.file', 'wb') as result_file:
+#         pickle.dump(result, result_file)
+#
+#
+# def load_result_object_from_file():
+#     with open("..\\" + 'result.file', 'rb') as result_file:
+#         return pickle.load(result_file)
 
 
 class Scraper:
@@ -26,6 +57,41 @@ class Scraper:
 
     def find_new_blogs(self):
         raise NotImplementedError
+
+    def update_db(self, result, url):
+        root_path = r'C:\Users\uziel.shemesh\PycharmProjects\Proactive-Threat-Evaluation'
+        db_path = os.path.join(root_path, 'IOCs_DB.xlsx')
+        # Load in the workbook
+        try:
+            wb = excelDB.load_workbook(db_path)
+        except:
+            wb = excelDB.Workbook()  # if Excel file not exist create new
+        # Get a sheet by name
+        blog_name = self.__class__.__name__
+        if blog_name not in wb.sheetnames:
+            blog_sheet = create_new_sheet(wb, blog_name)
+        else:
+            blog_sheet = wb[blog_name]
+        current_row = blog_sheet.max_row + 1
+        blog_sheet.cell(row=current_row, column=1).value = datetime.date.today().strftime('%d/%m/%Y')
+        try:
+            blog_sheet.cell(row=current_row, column=2).value = self.last_blog_date.strftime('%d/%m/%Y')
+        except Exception as e:
+            print(f'blog_name - {e}')
+        blog_sheet.cell(row=current_row, column=3).value = url
+        try:
+            blog_sheet.cell(row=current_row, column=4).value = ';'.join(result.get('sha256_hash'))
+        except Exception as e:
+            print(f'blog_name - {e}')
+        try:
+            blog_sheet.cell(row=current_row, column=5).value = ';'.join(result.get('md5_hash'))
+        except Exception as e:
+            print(f'blog_name - {e}')
+        blog_sheet.cell(row=current_row, column=6).value = 'exist_in_VT'  # TODO check existing in VT
+        blog_sheet.cell(row=current_row, column=7).value = 'date_uploaded_to_vt'  # TODO check upload date to VT
+        blog_sheet.cell(row=current_row, column=8).value = 'file_type'  # TODO check file type from VT
+        blog_sheet.cell(row=current_row, column=9).value = 'malware_bazaar'  # TODO get data from 'malware bazaar'
+        wb.save(db_path)
 
     def dump(self, name, content, pdf_bytes=None):
         logger.info(f'starting dumping for {name}')
@@ -69,6 +135,10 @@ class Scraper:
                 data = page.content.decode('utf-8')
 
             result = self.extractor.extract(src=data, defanged=False)
+            # x = result, url, self.__class__.__name__, self.folder, self.last_blog_date
+            # save_result_object_to_file(x)
+            # exit(100)
+            self.update_db(result, url)
             # result['ipv4'] = list(filter(validate_ip_address, result['ipv4']))  # validate ipv4 address
             # result['ipv6'] = list(filter(validate_ip_address, result['ipv6']))  # validate ipv6 address
             # result.pop('linux_path') if result.get('linux_path') else None
@@ -94,3 +164,37 @@ class Scraper:
             result.pop(key) if result.get(key) else None
 
         return {key: list(val) for key, val in result.items() if val}
+
+# def update_db(self, result, url):
+#     db_path = os.path.join(self[1], 'IOCs_DB.xlsx')
+#     # Load in the workbook
+#     try:
+#         wb = excelDB.load_workbook(db_path)
+#     except:
+#         wb = excelDB.Workbook()  # if Excel file not exist create new
+#     # Get a sheet by name
+#     blog_name = self[0]
+#     if blog_name not in wb.sheetnames:
+#         blog_sheet = create_new_sheet(wb, blog_name)
+#     else:
+#         blog_sheet = wb[blog_name]
+#     current_row = blog_sheet.max_row + 1
+#
+#     blog_sheet.cell(row=current_row, column=1).value = datetime.date.today().strftime('%d/%m/%Y')
+#     blog_sheet.cell(row=current_row, column=2).value = self[2].strftime('%d/%m/%Y')
+#     blog_sheet.cell(row=current_row, column=3).value = url
+#     blog_sheet.cell(row=current_row, column=4).value = ';'.join(result.get('sha256_hash'))
+#     blog_sheet.cell(row=current_row, column=5).value = ';'.join(result.get('md5_hash'))
+#     blog_sheet.cell(row=current_row, column=6).value = 'exist_in_VT'  # TODO check existing in VT
+#     blog_sheet.cell(row=current_row, column=7).value = 'date_uploaded_to_vt'  # TODO check upload date to VT
+#     blog_sheet.cell(row=current_row, column=8).value = 'file_type'  # TODO check file type from VT
+#     blog_sheet.cell(row=current_row, column=9).value = 'malware_bazaar'  # TODO get data from 'malware bazaar'
+#     wb.save(db_path)
+#
+#
+# x = load_result_object_from_file()
+# print(x)
+# self = x[2:5]
+# update_db(self, x[0], x[1])  # x = result, url, self.__class__.__name__, self.folder, self.last_blog_date
+#
+# # def update_db(self, result, url):
