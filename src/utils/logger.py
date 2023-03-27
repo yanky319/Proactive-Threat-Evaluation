@@ -11,6 +11,12 @@ path = os.path.join(TEMP_FOLDER, f'{datetime.datetime.now().strftime("%d-%m-%Y_%
 
 
 def set_logger(name, logs_path=path, level=logging.DEBUG):
+    # from sys import gettrace
+    # if gettrace() is not None:
+    #     level = logging.DEBUG
+    # else:
+    #     level = logging.INFO
+
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

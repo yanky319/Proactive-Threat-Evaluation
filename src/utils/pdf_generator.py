@@ -50,32 +50,39 @@ class PdfGenerator:
         :param out_file: if specified the pdf will pe saved there
         :return: tuple(page html, bytes of the pdf)
         """
-        self.driver.get(url)
-        time.sleep(1)  # allow the page to load, increase if needed
-        self.click_button_with_text(accept_cookies_text)
+        logger.debug(f'starting pdf generating for {url}')
 
-        # self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-        height = self.driver.execute_script("return document.body.scrollHeight")
-        i = 50
-        while i < height:
-            self.driver.execute_script(f"window.scrollTo(0,{i})")
-            i += 50
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollTop);")
-        time.sleep(5)
+        try:
+            self.driver.get(url)
+            time.sleep(1)  # allow the page to load, increase if needed
+            self.click_button_with_text(accept_cookies_text)
 
-        print_options = self.print_options.copy()
-        result = self._send_devtools("Page.printToPDF", print_options)
-        result = base64.b64decode(result['data'])
+            # self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+            height = self.driver.execute_script("return document.body.scrollHeight")
+            i = 50
+            while i < height:
+                self.driver.execute_script(f"window.scrollTo(0,{i})")
+                i += 50
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollTop);")
+            time.sleep(5)
 
-        if out_file:
-            try:
-                with open(out_file, "wb") as f:
-                    f.write(result)
-            except Exception as e:
-                tb = traceback.format_exc()
-                logger.error(f'error with saving pdf bytes\nexception: {e}\ntraceback: {tb}')
+            print_options = self.print_options.copy()
+            result = self._send_devtools("Page.printToPDF", print_options)
+            result = base64.b64decode(result['data'])
 
-        return self.driver.page_source, result
+            if out_file:
+                try:
+                    with open(out_file, "wb") as f:
+                        f.write(result)
+                except Exception as e:
+                    tb = traceback.format_exc()
+                    logger.error(f'error with saving pdf bytes\nexception: {e}\ntraceback: {tb}')
+
+            return self.driver.page_source, result
+
+        except Exception as e:
+            tb = traceback.format_exc()
+            logger.error(f'Error with pdf generating for {url}\nexception: {e}\ntraceback: {tb}')
 
     def _send_devtools(self, cmd, params):
         """

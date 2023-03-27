@@ -12,12 +12,13 @@ logger = logging.getLogger(LOGGER_NAME)
 
 class CybereasonScraper(Scraper):
 
-    def __init__(self, extractor, pdf_generator, last_blog_date=None, upload=True, folder=TEMP_FOLDER):
+    def __init__(self, extractor, pdf_generator,  db_handle, last_blog_date=None, upload=True, folder=TEMP_FOLDER):
         super().__init__(base='https://www.cybereason.com{relative}',
                          start='/blog/category/research',
                          last_blog_date=last_blog_date,
                          extractor=extractor,
                          pdf_generator=pdf_generator,
+                         db_handle=db_handle,
                          upload=upload,
                          folder=folder)
         self.accept_cookies_text = 'Accept All Cookies'
@@ -47,7 +48,7 @@ class CybereasonScraper(Scraper):
                 self.blogs[link] = date_object
                 dates.append(date_object)
 
-        logger.debug(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
+        logger.info(f'found {len(self.blogs)} blogs in {self.__class__.__name__}')
         if dates:
             self.last_blog_date = max(dates)
         else:
