@@ -26,14 +26,13 @@ def check_virus_total(found_hash):
             first_submission_date_unix_timestamp = result['attributes']['first_submission_date']
             first_submission_date = datetime.datetime.fromtimestamp(first_submission_date_unix_timestamp)
 
-            # TODO check if this is malware_bazaar or not
-            meaningful_name = result['attributes']['meaningful_name']
+            meaningful_name = result['attributes'].get('meaningful_name', '')
 
             return {DBFields.SHA256.value: result['attributes']['sha256'],
                     DBFields.MD5.value: result['attributes']['md5'],
                     DBFields.Date_uploaded_to_vt.value: first_submission_date,
                     DBFields.file_type.value: result['attributes']['type_description'],
-                    DBFields.malware_bazaar.value: meaningful_name}
+                    DBFields.meaningful_name.value: meaningful_name}
     except Exception as e:
         tb = traceback.format_exc()
         logger.error(f'Error in check_virus_total with {found_hash}\nexception: {e}\ntraceback: {tb}')

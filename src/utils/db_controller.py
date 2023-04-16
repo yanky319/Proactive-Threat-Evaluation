@@ -23,6 +23,8 @@ class DB:
             self.ws = self.wb[SHEET_NAME]
             self.update_row(1, *tuple(h.value for h in DBFields))
 
+        self.columns = [cell.value for cell in self.ws[1]]
+
     def save(self):
         self.wb.save(self.db_path)
 
@@ -40,14 +42,15 @@ class DB:
         self.save()
 
     def get_row_by_number(self, row_number):
-        """Returns a list containing the values in the specified row of an Excel sheet."""
+        """Returns a dictionary containing the values in the specified row of an Excel sheet."""
 
-        return [cell.value for cell in self.ws[row_number]]
+        values = [cell.value for cell in self.ws[row_number]]
+        return dict(zip(self.columns, values))
 
     def get_column(self, column_name):
         """Returns a list containing the values in the specified column of an Excel sheet."""
 
-        column_number = self.get_row_by_number(1).index(column_name)
+        column_number = self.columns.index(column_name)
         column = []
         for row in self.ws.iter_rows(min_row=2, min_col=column_number, max_col=column_number):
             for cell in row:
@@ -55,16 +58,20 @@ class DB:
         return column
 
     def get_row_with_value(self, value):
-        """Returns a list containing the values in the first row of an Excel sheet
+        """Returns a dictionary containing the values in the first row of an Excel sheet
         that includes the specified value."""
         values = []
-        for row in self.ws.iter_rows(min_row=1, max_row=1):
+        for row in self.ws.iter_rows():
             for cell in row:
                 if cell.value == value:
                     values = [cell.offset(column=col_index - cell.column).value for col_index in
                               range(1, self.ws.max_column + 1)]
 
-        keys = self.get_row_by_number(1)
-        return dict(zip(keys, values))
+        return dict(zip(self.columns, values))
 
-
+    def get_index_of_row_with_value(self, value):
+        """Returns number of the first row containing the value."""
+        for row in self.ws.iter_rows():
+            for cell in row:
+                if cell.value == value:
+                    return cell.row

@@ -13,7 +13,6 @@ logger = set_logger(LOGGER_NAME)
 def main():
     config = get_config()
     scrapers = [FortinetScraper, SentineloneScraper, CybereasonScraper, KasperskyScraper, SecuritySoupScraper]
-    scrapers = [SentineloneScraper]
     extractor = IoCExtract()
     pdf_generator = PdfGenerator()
     db_handle = DB(DB_PATH)

@@ -9,7 +9,7 @@ TEMP_FOLDER = os.path.join(BASE_FOLDER, 'temp')
 os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 
-DEFAULT_LAST_DATE = (datetime.today() - timedelta(days=500))
+DEFAULT_LAST_DATE = (datetime.today() - timedelta(days=100))
 ACCEPT_COOKIES_TEXTS = ['Accept All Cookies', 'Accept All', 'ACCEPT AND CLOSE']
 
 
@@ -17,15 +17,14 @@ ACCEPT_COOKIES_TEXTS = ['Accept All Cookies', 'Accept All', 'ACCEPT AND CLOSE']
 # data base
 ################################################################
 class DBFields(Enum):
-    Scan_date = 'Scan date'
-    Blog_upload_date = 'Blog upload date'
-    URL = 'URL'
     SHA256 = 'SHA256'
     MD5 = 'MD5'
-    Existence_in_VT = 'Existence_in_VT'
-    Date_uploaded_to_vt = 'Date_uploaded_to_vt'
-    file_type = 'file_type'
-    malware_bazaar = 'malware_bazaar'
+    first_scan_date = 'First scan date'
+    URLS = 'Blog URLs'
+    Existence_in_VT = 'Existence in VT'
+    Date_uploaded_to_vt = 'Date uploaded to VT'
+    file_type = 'File type'
+    meaningful_name = 'Meaningful name'
 
 
 DB_FOLDER = os.path.join(BASE_FOLDER, 'DB')
