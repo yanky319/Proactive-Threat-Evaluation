@@ -10,12 +10,13 @@ from collections import defaultdict
 from src.utils import DB
 from src.config import DEFAULT_LAST_DATE, LOGGER_NAME, DBFields
 from src.utils import validate_ip_address, check_virus_total
+from msticpy.transform.iocextract import IoCExtract
 
 logger = logging.getLogger(LOGGER_NAME)
 
 
 class Scraper:
-    def __init__(self, base, start, last_blog_date, extractor, pdf_generator, db_handle: DB, upload, folder):
+    def __init__(self, base, start, last_blog_date, extractor: IoCExtract, pdf_generator, db_handle: DB, upload, folder):
         self.base_url = base
         self.start_url = start
         self.blogs = dict()
@@ -126,11 +127,11 @@ class Scraper:
             logger.debug(f'starting scraping for {link}')
             blog_name = self.get_post_name(link)
             pdf_bytes = None
-            if self.pdf_generator:
-                data, pdf_bytes = self.pdf_generator.generate_pdf_from_url(link, self.accept_cookies_text)
-            else:
-                page = requests.get(link)
-                data = page.content.decode('utf-8')
+            # if self.pdf_generator:
+            #     data, pdf_bytes = self.pdf_generator.generate_pdf_from_url(link, self.accept_cookies_text)
+            # else:
+            page = requests.get(link)
+            data = page.content.decode('utf-8')
 
             result = self.extractor.extract(src=data, defanged=False)
             self.update_db(result, link)  # , post_date)
