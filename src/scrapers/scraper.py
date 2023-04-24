@@ -16,7 +16,8 @@ logger = logging.getLogger(LOGGER_NAME)
 
 
 class Scraper:
-    def __init__(self, base, start, last_blog_date, extractor: IoCExtract, pdf_generator, db_handle: DB, upload, folder):
+    def __init__(self, base, start, last_blog_date, extractor: IoCExtract,
+                 pdf_generator, db_handle: DB, upload, folder):
         self.base_url = base
         self.start_url = start
         self.blogs = dict()
@@ -127,14 +128,13 @@ class Scraper:
             logger.debug(f'starting scraping for {link}')
             blog_name = self.get_post_name(link)
             pdf_bytes = None
-            # if self.pdf_generator:
-            #     data, pdf_bytes = self.pdf_generator.generate_pdf_from_url(link, self.accept_cookies_text)
-            # else:
+            if self.pdf_generator:
+                pdf_bytes = self.pdf_generator.generate_pdf_from_url(link, self.accept_cookies_text)
             page = requests.get(link)
             data = page.content.decode('utf-8')
 
             result = self.extractor.extract(src=data, defanged=False)
-            self.update_db(result, link)  # , post_date)
+            self.update_db(result, link)
             self.dump(name=blog_name, content=self.validate_and_cleanup(result), pdf_bytes=pdf_bytes)
 
     @staticmethod

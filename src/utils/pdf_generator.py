@@ -78,7 +78,7 @@ class PdfGenerator:
                     tb = traceback.format_exc()
                     logger.error(f'error with saving pdf bytes\nexception: {e}\ntraceback: {tb}')
 
-            return self.driver.page_source, result
+            return result
 
         except Exception as e:
             tb = traceback.format_exc()
